@@ -20,6 +20,8 @@ namespace FastGithub.DomainResolve
     /// </summary>
     sealed class IPAddressService
     {
+        const int MAX_ADDRESS_COUNT = 10;
+
         private record DomainAddress(string Domain, IPAddress Address);
         private readonly TimeSpan domainAddressExpiration = TimeSpan.FromMinutes(10d);
         private readonly IMemoryCache domainAddressCache = new MemoryCache(Options.Create(new MemoryCacheOptions()));
@@ -81,6 +83,7 @@ namespace FastGithub.DomainResolve
             return addressElapseds
                 .Where(item => item.Elapsed < TimeSpan.MaxValue)
                 .OrderBy(item => item.Elapsed)
+                .Take(MAX_ADDRESS_COUNT)
                 .Select(item => item.Address)
                 .ToArray();
         }
